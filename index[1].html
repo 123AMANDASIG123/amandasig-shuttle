@@ -57,7 +57,7 @@ textarea{min-height:65px;resize:vertical;line-height:1.5;}
 .btn-wa{display:block;width:100%;padding:15px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;margin-bottom:10px;text-align:center;text-decoration:none;}
 .btn-new{display:block;width:100%;padding:13px;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:8px;font-size:15px;cursor:pointer;text-align:center;margin-top:8px;}
 .sent-ok{background:rgba(255,255,255,.2);border-radius:6px;padding:10px 14px;font-size:14px;margin-top:8px;display:none;}
-@media(max-width:480px){.g2,.g3{grid-template-columns:1fr;}.price-row{flex-direction:column;}.price-stat{border-right:none;border-bottom:1px solid #e0d5c5;}}
+@media(max-width:480px){.g2,.g3{grid-template-columns:1fr;}.price-row{flex-direction:column;}.price-stat{border-right:none;border-bottom:1px solid #e0d5c5;}.booking-type-btns{grid-template-columns:1fr!important;}}
 </style>
 <style>
 /* Style the Google PlaceAutocompleteElement to match our design */
@@ -92,18 +92,24 @@ gmp-place-autocomplete::part(input):focus {
   <h1>🚐 Amandasig Private Shuttle</h1>
   <p>Pre-booked transfers · Gauteng</p>
 </div>
+<div style="background:#1a1a1a;color:#fff;padding:10px 16px;text-align:center;font-size:13px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
+  <span>🚭 No smoking</span>
+  <span>🚫 No alcohol</span>
+  <span>🍔 No eating</span>
+  <span>🎵 Respect the driver</span>
+</div>
 
 <div class="page active" id="formPage">
 <div class="wrap">
   <div class="card">
     <h2>📋 Booking type</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;" class="booking-type-btns">
       <button type="button" id="btnSingle" onclick="setType('single')"
-        style="padding:14px;border:2px solid #C97A22;border-radius:8px;background:#C97A22;color:#fff;font-size:14px;font-weight:bold;cursor:pointer;">
+        style="padding:16px;border:2px solid #C97A22;border-radius:8px;background:#C97A22;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;width:100%;">
         🚐 Single trip
       </button>
       <button type="button" id="btnMonthly" onclick="setType('monthly')"
-        style="padding:14px;border:2px solid #ddd;border-radius:8px;background:#fff;color:#555;font-size:14px;font-weight:bold;cursor:pointer;">
+        style="padding:16px;border:2px solid #12122a;border-radius:8px;background:#12122a;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;width:100%;">
         📅 Monthly contract
       </button>
     </div>
@@ -188,6 +194,15 @@ gmp-place-autocomplete::part(input):focus {
     <div style="margin-top:14px;">
       <span class="lbl">Additional notes</span>
       <textarea id="contractNotes" placeholder="e.g. School pickup at 07:00, 2 children, drop at home by 07:45…" style="width:100%;padding:12px 13px;border:1.5px solid #ddd;border-radius:7px;font-size:14px;font-family:Arial,sans-serif;outline:none;min-height:80px;resize:vertical;line-height:1.5;"></textarea>
+    </div>
+  </div>
+
+  <!-- Off days notice -->
+  <div class="card" id="offDaysCard">
+    <h2>📅 Availability notice</h2>
+    <div id="offDaysList" style="font-size:14px;color:#555;line-height:1.8;"></div>
+    <div style="font-size:12px;color:#888;margin-top:8px;font-style:italic;">
+      Please do not book on these dates. Choose an alternative date.
     </div>
   </div>
 
@@ -277,7 +292,7 @@ function updateDist() {
   document.getElementById('priceBox').style.display = 'block';
 }
 
-window.addEventListener('load', initPlaceAutocomplete);
+
 
 var COORDS = [
   {k:'or tambo',lat:-26.1392,lng:28.2460},{k:'tambo airport',lat:-26.1392,lng:28.2460},
@@ -344,7 +359,27 @@ var COORDS = [
   {k:'joburg south',lat:-26.3000,lng:28.0000},{k:'johannesburg south',lat:-26.3000,lng:28.0000},
 ];
 
-var RATE=8.00, PEAK_RATE=10.00, MIN_FARE=150;
+var RATE=8.00, PEAK_RATE=10.00, MIN_FARE=50;
+
+// ── YOUR OFF DAYS ── Add or remove dates here
+// Format: 'YYYY-MM-DD' or 'Every Saturday' or 'Every Sunday'
+var OFF_DAYS = [
+  {date:'every-saturday', label:'Every Saturday — day off'},
+  {date:'every-sunday', label:'Every Sunday — day off'},
+  // Add specific dates below like this:
+  // {date:'2026-08-15', label:'15 August — Public holiday'},
+  // {date:'2026-12-25', label:'25 December — Christmas'},
+];
+
+function showOffDays(){
+  var list = document.getElementById('offDaysList');
+  var card = document.getElementById('offDaysCard');
+  if(!OFF_DAYS.length){ card.style.display='none'; return; }
+  var html = OFF_DAYS.map(function(d){ return '🚫 '+d.label; }).join('<br>');
+  list.innerHTML = html;
+}
+
+window.addEventListener('load', function(){ showOffDays(); initPlaceAutocomplete(); });
 var bookingType = 'single';
 
 function setType(type){
@@ -356,13 +391,13 @@ function setType(type){
   var submitBtn=document.getElementById('submitBtn');
   if(type==='single'){
     btnS.style.background='#C97A22';btnS.style.color='#fff';btnS.style.borderColor='#C97A22';
-    btnM.style.background='#fff';btnM.style.color='#555';btnM.style.borderColor='#ddd';
+    btnM.style.background='#12122a';btnM.style.color='#fff';btnM.style.borderColor='#12122a';
     mInfo.style.display='none';
     mCard.style.display='none';
     submitBtn.textContent='Request this ride →';
   } else {
     btnM.style.background='#C97A22';btnM.style.color='#fff';btnM.style.borderColor='#C97A22';
-    btnS.style.background='#fff';btnS.style.color='#555';btnS.style.borderColor='#ddd';
+    btnS.style.background='#12122a';btnS.style.color='#fff';btnS.style.borderColor='#12122a';
     mInfo.style.display='block';
     mCard.style.display='block';
     submitBtn.textContent='Request monthly contract →';
@@ -392,15 +427,16 @@ function calcPrice(km, tmStr){
   var hr=parseInt(tmStr.split(':')[0]);
   var isPeak=(hr>=6&&hr<8)||(hr>=16&&hr<18);
   var rate=isPeak?PEAK_RATE:RATE;
-  // Charge one way distance at higher rate (covers return trip cost)
-  var price=Math.round(km*rate*100)/100;
+  // Charge both ways - client trip + return empty
+  var billKm=km*2;
+  var price=Math.round(billKm*rate*100)/100;
   // Apply minimum fare
   if(price<MIN_FARE) price=MIN_FARE;
   var mins=Math.round(km/50*60);
   var timeStr=mins<60?mins+' min':Math.floor(mins/60)+'h'+(mins%60?' '+mins%60+'min':'');
-  var rateLabel=isPeak?'Peak R10.00/km':'Standard R8.00/km';
-  if(price===MIN_FARE) rateLabel+=' · minimum fare R150';
-  return {price:price,rate:rate,isPeak:isPeak,isLong:false,billKm:km,timeStr:timeStr,rateLabel:rateLabel};
+  var rateLabel=isPeak?'Peak R10.00/km (both ways)':'Standard R8.00/km (both ways)';
+  if(price===MIN_FARE) rateLabel+=' · minimum fare R50';
+  return {price:price,rate:rate,isPeak:isPeak,isLong:false,billKm:billKm,timeStr:timeStr,rateLabel:rateLabel};
 }
 
 function cp(n){pax=Math.max(1,Math.min(16,pax+n));document.getElementById('pn').textContent=pax;}
@@ -410,10 +446,25 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function gw(b){var s=new Date(b.date+'T'+b.time).getTime();return[s-30*60000,s+b.dur*60000+30*60000];}
 function clash(a,b){var wa=gw(a),wb=gw(b);return wa[0]<wb[1]&&wb[0]<wa[1];}
 
+function isOffDay(dateStr){
+  if(!dateStr) return false;
+  var d = new Date(dateStr+'T00:00:00');
+  var day = d.getDay(); // 0=Sun, 6=Sat
+  for(var i=0;i<OFF_DAYS.length;i++){
+    var od = OFF_DAYS[i];
+    if(od.date==='every-saturday' && day===6) return od.label;
+    if(od.date==='every-sunday' && day===0) return od.label;
+    if(od.date===dateStr) return od.label;
+  }
+  return false;
+}
+
 function chk(){
   var d=document.getElementById('dt').value,t=document.getElementById('tm').value,av=document.getElementById('av');
   if(!d||!t){av.className='avail';return;}
   if(new Date(d+'T'+t)<new Date()){av.className='avail no';av.textContent='⚠ That time has already passed';return;}
+  var offDay=isOffDay(d);
+  if(offDay){av.className='avail no';av.textContent='⚠ Not available — '+offDay;return;}
   var c={date:d,time:t,dur:parseInt(document.getElementById('dur').value)};
   var cl=bks.find(function(b){return clash(c,b);});
   if(cl){av.className='avail no';av.textContent='⚠ Not available — clashes with booking at '+t12(cl.time);return;}
@@ -490,6 +541,8 @@ function doSubmit(){
   }
 
   if(new Date(dt+'T'+tm)<new Date()){alert('That time has already passed.');return;}
+  var offDay=isOffDay(dt);
+  if(offDay){alert('Sorry — '+offDay+'. Please choose a different date.');return;}
   var c={date:dt,time:tm,dur:dur};
   var cl=bks.find(function(b){return clash(c,b);});
   if(cl){alert('Not available — clashes with booking at '+t12(cl.time));return;}
