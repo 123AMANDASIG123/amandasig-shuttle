@@ -1,0 +1,17 @@
+{
+  "name": "Amandasig Private Shuttle",
+  "short_name": "APS Shuttle",
+  "description": "Pre-booked private shuttle transfers in Gauteng",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#C97A22",
+  "theme_color": "#C97A22",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
